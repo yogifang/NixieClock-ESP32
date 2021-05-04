@@ -110,7 +110,7 @@ struct WiFiSettingsString : WiFiSettingsParameter {
   virtual void set(const String &v) { value = v; }
   String html() {
     String h =
-        F("<p><label>{label}:<br><input name='{name}' value='{value}' "
+        F("<p><label>{label}:<br><input style='font-size:100%' name='{name}' value='{value}' "
           "placeholder='{init}' minlength={min} maxlength={max}></label>");
     h.replace("{name}", html_entities(name));
     h.replace("{value}", html_entities(value));
@@ -332,7 +332,7 @@ void WiFiSettingsClass::portal() {
           "<meta name=viewport content='width=device-width,initial-scale=1'>"
           "<style>"
           "*{box-sizing:border-box} "
-          "html{background:#444;font:10pt sans-serif}"
+          "html{background:#444;font:14pt sans-serif}"
           "body{background:#ccc;color:black;max-width:30em;padding:1em;margin:"
           "1em auto}"
           "a:link{color:#000} "
@@ -351,7 +351,7 @@ void WiFiSettingsClass::portal() {
           ".w,.i{background:#aaa;min-height:3em}"
           "</style>"
           "<form action=/restart method=post>"));
-    http.sendContent(F("<input type=submit value=\""));
+    http.sendContent(F("<input style='font-size:100%' type=submit value=\""));
     http.sendContent(_WSL_T.button_restart);
     http.sendContent(F("\"></form><hr><h1>"));
     http.sendContent(_WSL_T.title);
@@ -371,7 +371,7 @@ void WiFiSettingsClass::portal() {
     
     http.sendContent(
         F("<style>.s{display:none}</style>" // hide "scanning"
-          "<select name=ssid "
+          "<select name=ssid style='font-size:100%'"
           "onchange=\"document.getElementsByName('password')[0].value=''\">"));
 
     String current = slurp("/wifi-ssid");
@@ -406,7 +406,7 @@ void WiFiSettingsClass::portal() {
     http.sendContent(F("</a><p><label>"));
 
     http.sendContent(_WSL_T.wifi_password);
-    http.sendContent(F(":<br><input name=password value='"));
+    http.sendContent(F(":<br><input style='font-size:100%' name=password value='"));
     if (slurp("/wifi-password").length())
       http.sendContent("##**##**##**");
     http.sendContent(F("'></label><hr>"));
@@ -422,7 +422,7 @@ void WiFiSettingsClass::portal() {
 
       http.sendContent(F("<label>"));
       http.sendContent(_WSL_T.timezone);
-      http.sendContent(F(":<br><select name=timezone>"));
+      http.sendContent(F(":<br><select name=timezone style='font-size:100%'>"));
       
       for (iCnt= -12 ; iCnt < 13 ; iCnt++ ){
         String opt = F("<option value='{code}'{sel}>{name}</option>");
@@ -438,7 +438,7 @@ void WiFiSettingsClass::portal() {
     if (WiFiSettingsLanguage::multiple()) {
       http.sendContent(F("<label>"));
       http.sendContent(_WSL_T.language);
-      http.sendContent(F(":<br><select name=language>"));
+      http.sendContent(F(":<br><select name=language style='font-size:100%'>"));
 
       for (auto &lang : WiFiSettingsLanguage::languages) {
         String opt = F("<option value='{code}'{sel}>{name}</option>");
