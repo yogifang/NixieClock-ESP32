@@ -50,6 +50,8 @@ const int iI2CRESET = 32;
 
 const int iSW1 = 36;
 const int iSW2 = 39;
+int iCntSW1 = 0 ;
+int iCntSW2 = 0 ;
 
 const int iH10 = 23;
 const int iH11 = 25;
@@ -178,7 +180,7 @@ void setup() {
   // GMT 0 = 0
   timeClient.setTimeOffset(iOffset);
 
-  Serial.println("Nixie Clock Controler Ver1.2");
+  Serial.println("Nixie Clock Controler Ver1.3");
 
  
   // set I/O pins to outputs
@@ -377,5 +379,18 @@ void loop() {
   if (bTimeFlish == false) {
     getInternetTime();
     bTimeFlish = true;
+  }
+  if (digitalRead(iSW1) == false) {
+    iCntSW1++ ;
+    if(iCntSW1 > 10000) {
+      Serial.println("Switch 1 pressed.......") ;
+      iCntSW1 = 10000 ;
+      while (digitalRead(iSW1) != true) {
+          iCntSW1 = 0 ;
+      };
+      WiFiSettings.portal() ;
+    }
+  } else {
+    iCntSW1 = 0 ;
   }
 }
