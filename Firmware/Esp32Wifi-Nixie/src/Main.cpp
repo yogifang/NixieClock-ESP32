@@ -16,6 +16,10 @@
 #include <WiFiUdp.h>
 #include <Wire.h>
 
+#define  NIXIE_IN14  1
+//#define  NIXIE_IN8   1
+
+
 #define MCPAddr1 0x20
 #define MCPAddr2 0x21
 
@@ -70,6 +74,8 @@ const int iH08 = 21;
 const int iH09 = 22;
 const int iH0R = 33;
 
+
+#ifdef NIXIE_IN14 
 const int iH1[] = {iH10, iH11, iH12, iH1R};
 
 const int iH0[] = {iH00, iH01, iH02, iH03, iH04, iH05,
@@ -78,15 +84,21 @@ const int iH0[] = {iH00, iH01, iH02, iH03, iH04, iH05,
 const uint16_t iMS0[10] = {BIT1, BIT0, BIT3, BIT2, BIT5,
                            BIT4, BIT7, BIT6, BIT8, BIT9};
 const uint16_t iMS1[6] = {BIT15, BIT14, BIT13, BIT12, BIT11, BIT10};
+#endif
 
-const byte byMS0[10][2] = {{0, BIT1}, {0, BIT0}, {0, BIT3}, {0, BIT2},
-                           {0, BIT5}, {0, BIT4}, {0, BIT7}, {0, BIT6},
-                           {1, BIT0}, {1, BIT1}};
-const byte byMS1[6][2] = {{1, BIT7}, {1, BIT6}, {1, BIT5},
-                          {1, BIT4}, {1, BIT3}, {1, BIT2}};
+#ifdef NIXIE_IN8
+const int iH1[] = {iH10, iH11, iH12, iH1R};
 
-const byte bySS0[] = {1, 0, 3, 2, 5, 4, 7, 6, 8, 9};
-const byte bySS1[] = {15, 14, 13, 12, 11, 10};
+const int iH0[] = {iH00, iH01, iH02, iH03, iH04, iH05,
+                   iH06, iH07, iH08, iH09, iH0R};
+
+const uint16_t iMS0[10] = {BIT8, BIT9, BIT1, BIT7, BIT4,
+                           BIT5, BIT2, BIT3, BIT1, BIT2};
+const uint16_t iMS1[6] = {BIT15, BIT14, BIT13, BIT12, BIT11, BIT10};
+#endif
+
+
+
 void IRAM_ATTR onTimer() {
   portENTER_CRITICAL_ISR(&timerMux);
   interruptCounter++;
@@ -180,7 +192,7 @@ void setup() {
   // GMT 0 = 0
   timeClient.setTimeOffset(iOffset);
 
-  Serial.println("Nixie Clock Controler Ver1.3");
+  Serial.println("Nixie Clock Controller Ver1.4");
 
  
   // set I/O pins to outputs
@@ -194,31 +206,7 @@ void setup() {
   timerAlarmEnable(timer);
 }
 //================================================================================================
-void clrMinSec(bool bMin, byte byTime) {
-  Adafruit_MCP23017 *pMcp;
-  if (bMin == true) {
-    pMcp = &mcpMin;
-    // Serial.print("Min.........");
-  } else {
-    pMcp = &mcpSec;
-    // Serial.print("Sec.........");
-  }
 
-  byte by10 = byTime / 10;
-  byte by0 = byTime % 10;
-  // Serial.println("dspMinSec ........");
-  // uint16_t u16Data = 0;
-  // u16Data = iMS0[by0] | iMS1[by10];
-  // pMcp->writeGPIOAB(u16Data);
-  for (int iCnt = 0; iCnt < 16; iCnt++) {
-    pMcp->digitalWrite(iCnt, LOW);
-  }
-  pMcp->digitalWrite(bySS0[by0], LOW);
-  pMcp->digitalWrite(bySS1[by10], LOW);
-  // while (pMcp->readGPIOAB() != u16Data) {
-  //  pMcp->writeGPIOAB(u16Data);
-  //}
-}
 
 void dspMinSec(bool bMin, byte byTime) {
   Adafruit_MCP23017 *pMcp;
@@ -241,8 +229,10 @@ void dspMinSec(bool bMin, byte byTime) {
   // Serial.println("dspMinSec ........");
   uint16_t u16Data = 0;
   u16Data = iMS0[by0] | iMS1[by10];
+  //u16Data = BIT10 ;
   noInterrupts();
 
+   
   pMcp->writeGPIOAB(u16Data);
   if (u16Data != pMcp->readGPIOAB()) {
     bForceResetMcp = true;
@@ -252,48 +242,6 @@ void dspMinSec(bool bMin, byte byTime) {
   interrupts();
 }
 
-void wireMinSec(bool bMin, byte byTime) {
-
-  byte by10 = byTime / 10;
-  byte by0 = byTime % 10;
-  byte byPortA = byMS0[by0][1];
-  byte byPortB = byMS1[by10][1];
-
-  if (by0 > 7) {
-    byPortA = 0;
-    byPortB = byMS0[by0][1] | byMS1[by10][1];
-  }
-
-  if (bMin == true) {
-    if (bMinChanged == false)
-      return;
-    noInterrupts();
-    Wire.beginTransmission(0x21);
-    Wire.write(0x12);    // address port A
-    Wire.write(byPortA); // value to send
-    Wire.endTransmission();
-    Wire.beginTransmission(0x21);
-    Wire.write(0x13);    // address port B
-    Wire.write(byPortB); // value to send
-    Wire.endTransmission();
-    interrupts();
-    // Serial.print("Min.........");
-  } else {
-    if (bSecChanged == false)
-      return;
-    noInterrupts();
-    Wire.beginTransmission(0x20);
-    Wire.write(0x12);    // address port A
-    Wire.write(byPortA); // value to send
-    Wire.endTransmission();
-    Wire.beginTransmission(0x20);
-    Wire.write(0x13);    // address port B
-    Wire.write(byPortB); // value to send
-    Wire.endTransmission();
-    interrupts();
-    // Serial.print("Sec.........");
-  }
-}
 
 void dspHour(byte byTime) {
 

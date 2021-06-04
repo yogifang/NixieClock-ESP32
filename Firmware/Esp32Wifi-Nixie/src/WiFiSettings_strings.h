@@ -46,7 +46,7 @@ bool select(Texts &T, String &language) {
 
 #if defined LANGUAGE_EN || defined LANGUAGE_ALL
   if (language == "en") {
-    T.title = F("Configuration");
+    T.title = F("Nixie Clock Configuration V1.5");
     T.portal_wpa = F("Protect the configuration portal with a WiFi password");
     T.portal_password = F("WiFi password for the configuration portal");
     T.init = "default";
@@ -69,7 +69,7 @@ bool select(Texts &T, String &language) {
 
 #if defined LANGUAGE_TW || defined LANGUAGE_ALL
   if (language == "tw") {
-    T.title = F("設定");
+    T.title = F("輝光管時鐘設定 V1.5");
     T.portal_wpa = F("使用WiFi密碼保護");
     T.portal_password = F("配置的WiFi密碼");
     T.init = "默認";
@@ -92,7 +92,7 @@ bool select(Texts &T, String &language) {
 
 #if defined LANGUAGE_NL || defined LANGUAGE_ALL
   if (language == "nl") {
-    T.title = F("Configuratie");
+    T.title = F("Nixie Clock Configuratie V1.5");
     T.portal_wpa = F("Beveilig de configuratieportal met een WiFi-wachtwoord");
     T.portal_password = F("WiFi-wachtwoord voor de configuratieportal");
     T.init = "standaard";
@@ -116,7 +116,7 @@ bool select(Texts &T, String &language) {
 
 #if defined LANGUAGE_DE || defined LANGUAGE_ALL
   if (language == "de") {
-    T.title = F("Konfiguration");
+    T.title = F("Nixie Clock Konfiguration V1.5");
     T.portal_wpa = F("Das Konfigurationsportal mit einem Passwort schützen");
     T.portal_password = F("Passwort für das Konfigurationsportal");
     T.init = "Standard";

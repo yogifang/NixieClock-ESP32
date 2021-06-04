@@ -411,7 +411,7 @@ void WiFiSettingsClass::portal() {
       http.sendContent("##**##**##**");
     http.sendContent(F("'></label><hr>"));
 
-    http.sendContent(_WSL_T.timezone);
+   // http.sendContent(_WSL_T.timezone);
     timezone = slurp("/timezone");
     int iCnt = 0 ;
     int iOldTZ = 0 ;
