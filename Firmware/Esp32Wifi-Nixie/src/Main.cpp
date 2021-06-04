@@ -15,6 +15,10 @@
 #include <WiFiSettings.h>
 #include <WiFiUdp.h>
 #include <Wire.h>
+void dspMinSec(bool bMin , byte byTime);
+
+
+#define NEW_BOARD  1
 
 #define  NIXIE_IN14  1
 //#define  NIXIE_IN8   1
@@ -57,10 +61,19 @@ const int iSW2 = 39;
 int iCntSW1 = 0 ;
 int iCntSW2 = 0 ;
 
+
+#ifdef NEW_BOARD 
+const int iH10 = 27;
+const int iH11 = 25;
+const int iH12 = 26;
+const int iH1R = 34;
+#endif
+#ifndef NEW_BOARD
 const int iH10 = 23;
 const int iH11 = 25;
 const int iH12 = 26;
 const int iH1R = 34;
+#endif
 
 const int iH00 = 12;
 const int iH01 = 13;
@@ -153,6 +166,8 @@ void initMcp23017() {
 
 void setup() {
   Serial.begin(115200);
+   Serial.println("Nixie Clock Controller Ver1.5");
+
    Wire.begin(I2C_SDA, I2C_SCL, 400000); // wake up I2C bus
 
   pinMode(iI2CRESET, OUTPUT);
@@ -169,13 +184,17 @@ void setup() {
     digitalWrite(iH0[iCnt], LOW);
   }
   initMcp23017();
-   digitalWrite(iH02 , LOW) ;
-   digitalWrite(iH03 , LOW) ;
+  
+  bSecChanged = true ;
+  dspMinSec(false , 0) ;
+
    SPIFFS.begin(true); // Will format on the first run after failing to mount
    delay(500) ;
   // Use stored credentials to connect to your WiFi access point.
   // If no credentials are stored or if the access point is out of reach,
   // an access point will be started with a captive portal to configure WiFi.
+  bSecChanged = true ;
+  dspMinSec(false , 1) ;
   WiFiSettings.connect();
 
   String strTZ = WiFiSettings.timezone ;
@@ -192,8 +211,7 @@ void setup() {
   // GMT 0 = 0
   timeClient.setTimeOffset(iOffset);
 
-  Serial.println("Nixie Clock Controller Ver1.4");
-
+ 
  
   // set I/O pins to outputs
 
@@ -299,6 +317,7 @@ void getInternetTime() {
 }
 //================================================================================================
 void loop() {
+
 
   if (interruptCounter > 0) {
     portENTER_CRITICAL(&timerMux);
