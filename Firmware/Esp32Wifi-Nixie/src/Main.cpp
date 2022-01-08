@@ -8,7 +8,7 @@
     For ESP8266, use LittleFS.begin() instead of SPIFFS.begin(true).
 */
 
-#include "Adafruit_MCP23017.h"
+#include "Adafruit_MCP23X17.h"
 #include <Arduino.h>
 #include <NTPClient.h>
 #include <SPIFFS.h>
@@ -36,8 +36,8 @@ String formattedDate;
 String dayStamp;
 String timeStamp;
 
-Adafruit_MCP23017 mcpSec;
-Adafruit_MCP23017 mcpMin;
+Adafruit_MCP23X17 mcpSec;
+Adafruit_MCP23X17 mcpMin;
 volatile int interruptCounter;
 int totalInterruptCounter;
 
@@ -135,13 +135,13 @@ void IRAM_ATTR onTimer() {
   portEXIT_CRITICAL_ISR(&timerMux);
 }
 
-void initMcp23017() {
+void initMcp23X17() {
   digitalWrite(iI2CRESET, LOW);
   delay(1);
   digitalWrite(iI2CRESET, HIGH);
 
-  mcpSec.begin(0x0, &Wire); // use default address 0
-  mcpMin.begin(0x1, &Wire);
+  mcpSec.begin_I2C(0x0, &Wire); // use default address 0
+  mcpMin.begin_I2C(0x1, &Wire);
 
   Wire.beginTransmission(MCPAddr1);
   Wire.write(0x00); // address port A direction
@@ -183,7 +183,7 @@ void setup() {
     pinMode(iH0[iCnt], OUTPUT);
     digitalWrite(iH0[iCnt], LOW);
   }
-  initMcp23017();
+  initMcp23X17();
   
   bSecChanged = true ;
   dspMinSec(false , 0) ;
@@ -227,7 +227,7 @@ void setup() {
 
 
 void dspMinSec(bool bMin, byte byTime) {
-  Adafruit_MCP23017 *pMcp;
+  Adafruit_MCP23X17 *pMcp;
   if (bMin == true) {
     if (bMinChanged == false)
       return;
@@ -290,7 +290,7 @@ void getInternetTime() {
   while (!timeClient.update()) {
     timeClient.forceUpdate();
   }
-  // initMcp23017();
+  // initMcp23X17();
   // The formattedDate comes with the following format:
   // 2018-05-28T16:00:13Z
   // We need to extract date and time
@@ -329,7 +329,7 @@ void loop() {
     return;
   }
   if (bForceResetMcp == true) {
-    initMcp23017();
+    initMcp23X17();
     bForceResetMcp = false;
     bSecChanged = true;
     bMinChanged = true;
